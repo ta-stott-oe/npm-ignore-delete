@@ -3,19 +3,53 @@ import Q = require('q')
 import path = require('path')
 var ignoreparser = require('gitignore-parser')
 var rimraf = require('rimraf')
+var getFolderSize = require('get-folder-size')
 
 export enum Verbosity {
 	Normal,
 	Verbose
 }
 
+export interface NpmIgnoreStats {
+	DeletedFiles: number;
+	DeletedFolders: number;
+	DirectorySizeBeforeMB: number;
+	DirectorySizeAfterMB: number;
+}
+
 export class NpmIgnoreOperation {
-	constructor(private verbosity: Verbosity, 
+	
+	private deleted : DirectoryItem[];
+	
+	constructor(private target : string,
+		private verbosity: Verbosity, 
 		private dryRun : boolean = false) {
 
+		this.deleted = [];
 	}
 
-	public Execute(directory: string, ignorers: Ignorer[] = []): Q.Promise<any> {
+	public Execute() : Q.Promise<NpmIgnoreStats> {
+		
+		var folderSizeBefore = 0;
+		
+		return Q.nfcall<number>(getFolderSize, this.target)
+			.then(sizeBytes => {
+				folderSizeBefore = sizeBytes;
+				return {}
+			})
+			.then(() => this._Execute(this.target, []))
+			.then(() => Q.nfcall<number>(getFolderSize, this.target))
+			.then(folderSizeAfterBytes => {
+				return {
+					DeletedFiles: this.deleted.filter(di => !di.IsDir).length,
+					DeletedFolders: this.deleted.filter(di => di.IsDir).length,
+					DirectorySizeBeforeMB: folderSizeBefore / 1024 / 1024,
+					DirectorySizeAfterMB: folderSizeAfterBytes / 1024 / 1024
+				}
+			})
+	}
+
+	private _Execute(directory: string, ignorers: Ignorer[]): Q.Promise<any> {
 		return GetChildren(directory)
 			.then(items => {
 				var doIgnore: Q.Promise<Ignorer[]> = items.some(di => di.Path.toLowerCase() == '.npmignore')
@@ -32,6 +66,8 @@ export class NpmIgnoreOperation {
 						return Q.all(stuffToDelete
 							.map(di => {
 								var fullRelativePath = path.join(directory, di.Path);
+								this.deleted.push({Path: fullRelativePath, IsDir: di.IsDir});
+								
 								if (di.IsDir) {
 									deletedDirs[di.Path] = true;
 									console.log(`Deleting directory ${fullRelativePath }`)
@@ -52,7 +88,7 @@ export class NpmIgnoreOperation {
 						return Q.all(directories.map(d => {
 							var dirPath = path.join(directory, d.Path);
 							var subIgnorers = newIgnorers.map(i => SubDirectoryIgnore(i, d.Path));
-							return this.Execute(dirPath, subIgnorers);
+							return this._Execute(dirPath, subIgnorers);
 						}));
 					});
 			});

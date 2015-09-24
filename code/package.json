@@ -1,6 +1,6 @@
 {
   "name": "npm-ignore-delete",
-  "version": "0.0.0",
+  "version": "0.0.1",
   "description": "Deletes files and folders from a folder hierarchy according to any .npmignore files contained therein",
   "author": "Tim Stott",
   "main": "app.js",
@@ -9,7 +9,7 @@
     "build": "tsc -p ./",
     "test": "npm run build && node_modules\\.bin\\mocha --recursive",
     "start": "node app.js",
-    "prepublish": "node_modules\\.bin\\shebangify app.js"
+    "prepublish": "node node_modules\\shebangify\\shebangify.js app.js"
   },
   "devDependencies": {
     "chai": "^3.3.0",
@@ -17,6 +17,7 @@
     "shebangify": "0.0.0"
   },
   "dependencies": {
+    "get-folder-size": "^0.1.1",
     "gitignore-parser": "0.0.2",
     "q": "^1.4.1",
     "rimraf": "^2.4.3",

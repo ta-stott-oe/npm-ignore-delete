@@ -9,8 +9,9 @@ var argv = yargs
 
 Q.longStackSupport = true;
 
-var op = new nio.NpmIgnoreOperation(nio.Verbosity.Normal);
-op.Execute(argv._[0])
-	.done(() => {
-		console.log(`We're done here`);
+var op = new nio.NpmIgnoreOperation(argv._[0], nio.Verbosity.Normal);
+op.Execute()
+	.done(stats => {
+		console.log(`We're done here\n\n`);
+		console.log(stats);
 	});
