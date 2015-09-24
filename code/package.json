@@ -1,6 +1,6 @@
 {
   "name": "npm-ignore-delete",
-  "version": "0.0.3",
+  "version": "0.0.8",
   "description": "Deletes files and folders from a folder hierarchy according to any .npmignore files contained therein",
   "author": "Tim Stott",
   "main": "app.js",

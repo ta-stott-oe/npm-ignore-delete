@@ -68,11 +68,12 @@ export class NpmIgnoreOperation {
 								var fullRelativePath = path.join(directory, di.Path);
 								this.deleted.push({Path: fullRelativePath, IsDir: di.IsDir});
 								
-								if (di.IsDir) {
+								if (di.IsDir) {	
 									deletedDirs[di.Path] = true;
 									console.log(`Deleting directory ${fullRelativePath }`)
 									if(this.dryRun) return Q(true);
 									else return Q.nfcall(rimraf,fullRelativePath);
+									
 								}
 								else {
 									console.log(`Deleting file ${fullRelativePath}`)
@@ -97,20 +98,22 @@ export class NpmIgnoreOperation {
 
 	private ParseIgnoreFile(filepath: string): Q.Promise<Ignorer> {
 		return Q.nfcall<string>(fs.readFile, filepath, 'utf8')
-			.then(contents => ignoreparser.compile(contents.replace('/', '\\')))
+			.then(contents => {
+				contents = contents.replace('/', '\\');
+				contents = contents.split(/\r?\n/)
+					.filter(line => !line.match(/node_modules[\\\/]?$/i)) //Never ignore the whole of node_modules! Some packages do this, even though it's redundant when publishing to npm repository
+					.join('\r\n');
+				return ignoreparser.compile(contents);
+			})
 			.then(ignorer => {
 				return {
 					accepts: (filepath: string) => {
-						if(filepath.toLowerCase() == "node_modules") return true; //Assume that node_modules should be preserved
-						
 						filepath = filepath.replace('/', '\\');
 						var result = ignorer.accepts(filepath);
 						if(this.verbosity == Verbosity.Verbose) console.log(`Accept = ${result}: '${filepath}' in '${path.dirname(filepath) }'`);
 						return result;
 					},
 					denies: (filepath: string) => {
-						if(filepath.toLowerCase() == "node_modules") return false; //Assume that node_modules should be preserved
-						
 						filepath = filepath.replace('/', '\\');
 						var result = ignorer.denies(filepath);
 						if(this.verbosity == Verbosity.Verbose) console.log(`Deny = ${result}: '${filepath}' in '${path.dirname(filepath) }'`);
