@@ -14,6 +14,7 @@
 			"stopOnEntry": false,
 			// Command line arguments passed to the program.
 			"args": [
+				"C:\\temp\\ignore-test",
 				"C:\\Users\\Tim OE\\AppData\\Local\\Temp\\forecast-api-deploy"
 			],
 			// Workspace relative or absolute path to the working directory of the program being debugged. Default is the current workspace.

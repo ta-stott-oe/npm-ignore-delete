@@ -101,12 +101,16 @@ export class NpmIgnoreOperation {
 			.then(ignorer => {
 				return {
 					accepts: (filepath: string) => {
+						if(filepath.toLowerCase() == "node_modules") return true; //Assume that node_modules should be preserved
+						
 						filepath = filepath.replace('/', '\\');
 						var result = ignorer.accepts(filepath);
 						if(this.verbosity == Verbosity.Verbose) console.log(`Accept = ${result}: '${filepath}' in '${path.dirname(filepath) }'`);
 						return result;
 					},
 					denies: (filepath: string) => {
+						if(filepath.toLowerCase() == "node_modules") return false; //Assume that node_modules should be preserved
+						
 						filepath = filepath.replace('/', '\\');
 						var result = ignorer.denies(filepath);
 						if(this.verbosity == Verbosity.Verbose) console.log(`Deny = ${result}: '${filepath}' in '${path.dirname(filepath) }'`);
