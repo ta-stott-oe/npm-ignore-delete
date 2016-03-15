@@ -22,8 +22,9 @@ export class NpmIgnoreOperation {
 	private deleted : DirectoryItem[];
 	
 	constructor(private target : string,
-		private verbosity: Verbosity, 
-		private dryRun : boolean = false) {
+		private verbosity: Verbosity,
+		private dryRun : boolean = false,
+        private allowIgnoreNodeModules = false) {
 
 		this.deleted = [];
 	}
@@ -101,7 +102,7 @@ export class NpmIgnoreOperation {
 			.then(contents => {
 				contents = contents.replace('/', '\\');
 				contents = contents.split(/\r?\n/)
-					.filter(line => !line.match(/node_modules[\\\/]?$/i)) //Never ignore the whole of node_modules! Some packages do this, even though it's redundant when publishing to npm repository
+					.filter(line => this.allowIgnoreNodeModules || !line.match(/node_modules[\\\/]?$/i)) //Be careful about ignoring the whole of node_modules! Some packages do this, even though it's redundant when publishing to npm repository
 					.join('\r\n');
 				return ignoreparser.compile(contents);
 			})

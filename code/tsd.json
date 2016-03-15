@@ -10,6 +10,18 @@
     },
     "q/Q.d.ts": {
       "commit": "32029fcb4e1a3ef8968711b545d77b584435729d"
+    },
+    "assertion-error/assertion-error.d.ts": {
+      "commit": "81ebfb3d08cd608a7c801668a6d5f7b2ea9ecc38"
+    },
+    "node/node.d.ts": {
+      "commit": "81ebfb3d08cd608a7c801668a6d5f7b2ea9ecc38"
+    },
+    "chai/chai.d.ts": {
+      "commit": "81ebfb3d08cd608a7c801668a6d5f7b2ea9ecc38"
+    },
+    "mocha/mocha.d.ts": {
+      "commit": "81ebfb3d08cd608a7c801668a6d5f7b2ea9ecc38"
     }
   }
 }

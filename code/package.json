@@ -8,13 +8,11 @@
   "scripts": {
     "build": "tsc -p ./",
     "test": "npm run build && node_modules\\.bin\\mocha --recursive",
-    "start": "node app.js",
-    "prepublish": "node node_modules\\shebangify\\shebangify.js app.js"
+    "start": "node app.js"
   },
   "devDependencies": {
     "chai": "^3.3.0",
-    "mocha": "^2.3.3",
-    "shebangify": "0.0.0"
+    "mocha": "^2.3.3"
   },
   "dependencies": {
     "get-folder-size": "^0.1.1",
