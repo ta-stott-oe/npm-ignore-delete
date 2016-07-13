@@ -1,14 +1,13 @@
 import fs = require('fs')
 import Q = require('q')
 import path = require('path')
-var ignoreparser = require('gitignore-parser')
+import {IgnoreOptions, Ignorer, Verbosity} from "./ignorer";
+import {GipIgnoreParser} from "./parser/gip-ignore-parser";
+import {NodeIgnoreIgnoreParser} from "./parser/ni-ignore-parser";
+
 var rimraf = require('rimraf')
 var getFolderSize = require('get-folder-size')
 
-export enum Verbosity {
-	Normal,
-	Verbose
-}
 
 export interface NpmIgnoreStats {
 	DeletedFiles: number;
@@ -62,7 +61,7 @@ export class NpmIgnoreOperation {
 
 				return doIgnore
 					.then(newIgnorers => {
-						var stuffToDelete = items.filter(di => newIgnorers.some(ignorer => ignorer.denies(di.Path)));
+						var stuffToDelete = items.filter(di => newIgnorers.some(ignorer => ignorer.Denies(di.Path)));
 						//Delete shit
 						return Q.all(stuffToDelete
 							.map(di => {
@@ -96,31 +95,12 @@ export class NpmIgnoreOperation {
 			});
 	}
 
-
 	private ParseIgnoreFile(filepath: string): Q.Promise<Ignorer> {
+		//const parser = new GipIgnoreParser();
+		const parser = new NodeIgnoreIgnoreParser();
 		return Q.nfcall<string>(fs.readFile, filepath, 'utf8')
 			.then(contents => {
-				contents = contents.replace('/', '\\');
-				contents = contents.split(/\r?\n/)
-					.filter(line => this.allowIgnoreNodeModules || !line.match(/node_modules[\\\/]?$/i)) //Be careful about ignoring the whole of node_modules! Some packages do this, even though it's redundant when publishing to npm repository
-					.join('\r\n');
-				return ignoreparser.compile(contents);
-			})
-			.then(ignorer => {
-				return {
-					accepts: (filepath: string) => {
-						filepath = filepath.replace('/', '\\');
-						var result = ignorer.accepts(filepath);
-						if(this.verbosity == Verbosity.Verbose) console.log(`Accept = ${result}: '${filepath}' in '${path.dirname(filepath) }'`);
-						return result;
-					},
-					denies: (filepath: string) => {
-						filepath = filepath.replace('/', '\\');
-						var result = ignorer.denies(filepath);
-						if(this.verbosity == Verbosity.Verbose) console.log(`Deny = ${result}: '${filepath}' in '${path.dirname(filepath) }'`);
-						return result;
-					}
-				}
+				return parser.Parse(contents, {AllowIgnoreNodeModules: this.allowIgnoreNodeModules, Verbosity: this.verbosity});
 			})
 	}
 }
@@ -129,12 +109,6 @@ interface DirectoryItem {
 	Path: string;
 	IsDir: boolean;
 }
-
-interface Ignorer {
-	accepts(filepath: string): boolean;
-	denies(filepath: string): boolean;
-}
-
 
 function GetChildren(directory: string): Q.Promise<DirectoryItem[]> {
 	return Q.nfcall<string[]>(fs.readdir, directory)
@@ -149,11 +123,11 @@ function GetChildren(directory: string): Q.Promise<DirectoryItem[]> {
 
 function SubDirectoryIgnore(ignorer: Ignorer, directory: string): Ignorer {
 	return {
-		accepts: (filepath: string) => {
-			return ignorer.accepts(path.join(directory, filepath));
+		Accepts: (filepath: string) => {
+			return ignorer.Accepts(path.join(directory, filepath));
 		},
-		denies: (filepath: string) => {
-			return ignorer.denies(path.join(directory, filepath));
+		Denies: (filepath: string) => {
+			return ignorer.Denies(path.join(directory, filepath));
 		}
 
 	}
