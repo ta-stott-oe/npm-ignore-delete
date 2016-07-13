@@ -9,14 +9,14 @@ var rimraf = require('rimraf')
 var getFolderSize = require('get-folder-size')
 
 
-export interface NpmIgnoreStats {
+export interface DeleteStats {
 	DeletedFiles: number;
 	DeletedFolders: number;
 	DirectorySizeBeforeMB: number;
 	DirectorySizeAfterMB: number;
 }
 
-export class NpmIgnoreOperation {
+export class DeleteOperation {
 	
 	private deleted : DirectoryItem[];
 	
@@ -28,7 +28,7 @@ export class NpmIgnoreOperation {
 		this.deleted = [];
 	}
 
-	public Execute() : Q.Promise<NpmIgnoreStats> {
+	public Execute() : Q.Promise<DeleteStats> {
 		
 		var folderSizeBefore = 0;
 		

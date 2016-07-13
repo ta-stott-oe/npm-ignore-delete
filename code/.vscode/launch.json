@@ -14,10 +14,12 @@
 			"stopOnEntry": false,
 			// Command line arguments passed to the program.
 			"args": [
-				"C:\\Users\\Tim Stott\\Code\\Julienne\\Code\\Deployment\\DeployedWebApps\\ScenarioApp"
+				"copy",
+				"C:\\Users\\Tim Stott\\Code\\Julienne\\Code\\Julienne.DashboardApp",
+				"C:\\Users\\Tim Stott\\Code\\Julienne\\Code\\Deployment\\DeployedWebApps\\DashboardApp"
 			],
 			// Workspace relative or absolute path to the working directory of the program being debugged. Default is the current workspace.
-			"cwd": "C:\\Users\\Tim Stott\\Code\\Julienne\\Code\\Deployment\\DeployedWebApps\\ScenarioApp",
+			"cwd": "${workspaceRoot}",
 			// Workspace relative or absolute path to the runtime executable to be used. Default is the runtime executable on the PATH.
 			"runtimeExecutable": null,
 			// Optional arguments passed to the runtime executable.
