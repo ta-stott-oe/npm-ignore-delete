@@ -51,6 +51,7 @@ export class CopyOperation {
     private DoCopy(ignorer: Ignorer): Q.Promise<RecursiveCopyResult[]> {
         const options = {
             overwrite: true,
+            expand: true,
             filter: (srcPath: string) => {
                 const destPath = path.join(this.destination, srcPath);
                 
