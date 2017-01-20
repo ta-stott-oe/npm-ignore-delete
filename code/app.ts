@@ -31,6 +31,7 @@ var argv = yargs
             DoCopy(_argv._[1], _argv._[2]);
         }
     )
+    .demand(1)
     .argv;
 
 
